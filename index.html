@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>やさしさ日記</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🌸 やさしさ日記 🌸</h1>
+    <p>日常の中で感じた小さなやさしさを、ここに集めましょう。</p>
+    <nav>
+      <button onclick="showHome()">ホーム</button>
+      <button onclick="showPostForm()">投稿する</button>
+      <button onclick="showMyPage()">マイページ</button>
+      <button onclick="showRanking()">ランキング</button>
+    </nav>
+  </header>
+
+  <main id="content"></main>
+
+  <footer>
+    <p>🌼 いつか誰かの心をそっと照らすサイトになりますように 🌼</p>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase 初期設定 -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvVC3Y0Z0hJA7j4urBM2VkvKJgxu0D7YA",
+      authDomain: "heartfulworld.firebaseapp.com",
+      projectId: "heartfulworld",
+      storageBucket: "heartfulworld.firebasestorage.app",
+      messagingSenderId: "1052110619575",
+      appId: "1:1052110619575:web:d2ce0a1543249607ae1e32",
+      measurementId: "G-FFSSJ1Y4Z6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <!-- メインスクリプト -->
+  <script src="script.js"></script>
+</body>
+</html>
