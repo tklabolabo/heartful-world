@@ -1,5 +1,6 @@
 const content = document.getElementById("content");
 const postsCollection = firebase.firestore().collection("posts");
+const tag = document.getElementById("tag").value;
 
 function getUserId() {
   if (!localStorage.getItem("userId")) {
@@ -52,12 +53,21 @@ async function showHome() {
 function showPostForm() {
   content.innerHTML = `
     <h2>やさしさ投稿フォーム</h2>
-    <form onsubmit="submitPost(event)">
-      <input type="text" id="name" placeholder="ニックネーム（任意）"><br><br>
-      <textarea id="text" rows="4" placeholder="やさしい出来事を書いてください" maxlength="280" oninput="countChars()"></textarea>
-      <div id="char-count">0/280文字</div><br>
-      <input type="file" id="imageInput" accept="image/*"><br><br>
-      <button type="submit">投稿する</button>
+        <form onsubmit="submitPost(event)">
+        <input type="text" id="name" placeholder="ニックネーム（任意）"><br><br>
+        <textarea id="text" rows="4" placeholder="やさしい出来事を書いてください" maxlength="280" oninput="countChars()"></textarea>
+        <div id="char-count">0/280文字</div><br>
+        <select id="tag" required>
+            <option value="">タグを選択してください</option>
+            <option value="ありがとう">ありがとう</option>
+            <option value="助け合い">助け合い</option>
+            <option value="笑顔">笑顔</option>
+            <option value="励まし">励まし</option>
+            <option value="思いやり">思いやり</option>
+        </select><br><br>
+
+        <input type="file" id="imageInput" accept="image/*"><br><br>
+        <button type="submit">投稿する</button>
     </form>
   `;
 }
@@ -83,7 +93,8 @@ function submitPost(e) {
       date: new Date().toISOString(),
       userId: getUserId(),
       likes: [],
-      comments: []
+      comments: [],
+      tag
     };
     await postsCollection.add(post);
     showHome();
@@ -152,6 +163,7 @@ async function showRanking() {
       <div class="post">
         <p><strong>${p.name || "匿名"}</strong> (${new Date(p.date).toLocaleString()})</p>
         <p>${p.text}</p>
+        <p>タグ: <span class="tag">${post.tag || "なし"}</span></p>
         ${p.image ? `<img src="${p.image}" alt="投稿画像">` : ""}
         <p>❤️ ${p.likes.length} いいね</p>
       </div>
