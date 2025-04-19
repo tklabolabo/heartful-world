@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>やさしさ日記</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Noto Sans JP フォント -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
@@ -18,6 +20,28 @@
     </nav>
   </header>
 
+  <!-- トップイラスト -->
+  <div class="top-illustration">
+    <img src="bird-8788491_1920.jpg" alt="鳥のイラスト" class="top-image">
+  </div>
+  
+
+ 
+    <div class="search-tag">
+        <label for="tagSearch">タグで検索:</label>
+        <select id="tagSearch" onchange="filterByTag()" class="tag-select">
+            <option value="">すべて表示</option>
+            <option value="ありがとう">ありがとう</option>
+            <option value="助け合い">助け合い</option>
+            <option value="笑顔">笑顔</option>
+            <option value="励まし">励まし</option>
+            <option value="思いやり">思いやり</option>
+        </select>
+    </div>
+  
+  <!-- トーストメッセージ -->
+  <div id="toast" class="toast"></div>
+    
   <main id="content"></main>
 
   <footer>
@@ -31,6 +55,7 @@
   <!-- Firebase 初期設定 -->
   <script>
     const firebaseConfig = {
+
       apiKey: "AIzaSyAvVC3Y0Z0hJA7j4urBM2VkvKJgxu0D7YA",
       authDomain: "heartfulworld.firebaseapp.com",
       projectId: "heartfulworld",
