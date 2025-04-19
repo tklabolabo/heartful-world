@@ -1,13 +1,13 @@
 body {
-    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #fffafc;
+    background-color: #fef6f9; /* 薄いピンクのパステルカラー */
     color: #333;
   }
   
   header {
-    background-color: #ffe0eb;
+    background-color: #ffeef3;
     padding: 20px;
     text-align: center;
     border-bottom: 2px solid #ffc0cb;
@@ -16,7 +16,7 @@ body {
   nav button {
     margin: 5px;
     padding: 10px 15px;
-    background-color: #ffb6c1;
+    background-color: #ffd6e0;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -24,8 +24,18 @@ body {
   }
   
   nav button:hover {
-    background-color: #ffa6b9;
+    background-color: #ffcad4;
   }
+  
+  .top-image {
+    width: 60%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
+  }
+  
   
   main {
     padding: 20px;
@@ -37,7 +47,7 @@ body {
     border-radius: 12px;
     padding: 15px;
     margin-bottom: 15px;
-    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
   .post img {
@@ -63,11 +73,48 @@ body {
     font-size: 0.9em;
   }
   
+  .tag {
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.9em;
+  }
+  
+  .tag-ありがとう { background-color: #FFD700; }
+  .tag-助け合い   { background-color: #ADD8E6; }
+  .tag-笑顔       { background-color: #FFB6C1; }
+  .tag-励まし     { background-color: #90EE90; }
+  .tag-思いやり   { background-color: #D8BFD8; }
+  
+  
   footer {
     text-align: center;
     background-color: #ffe0eb;
     padding: 10px;
     margin-top: 30px;
     border-top: 2px solid #ffc0cb;
+  }
+  
+  .toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #ffd6e0;
+    color: #333;
+    text-align: center;
+    border-radius: 10px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.5s, visibility 0.5s;
+  }
+  
+  .toast.show {
+    visibility: visible;
+    opacity: 1;
   }
   
