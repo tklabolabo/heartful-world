@@ -1,6 +1,5 @@
 const content = document.getElementById("content");
 const postsCollection = firebase.firestore().collection("posts");
-const tag = document.getElementById("tag").value;
 
 function getUserId() {
   if (!localStorage.getItem("userId")) {
@@ -9,46 +8,53 @@ function getUserId() {
   return localStorage.getItem("userId");
 }
 
-async function showHome() {
-  const sort = document.getElementById("sort")?.value || "new";
-  let html = `
-    <h2>投稿一覧</h2>
-    <div>
-      <label for="sort">並び替え:</label>
-      <select id="sort" onchange="showHome()">
-        <option value="new">新着順</option>
-        <option value="popular">人気順</option>
-      </select>
-    </div>
-  `;
-
-  const snapshot = await postsCollection.get();
-  let posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-  if (sort === "popular") {
-    posts.sort((a, b) => b.likes.length - a.likes.length);
-  } else {
-    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-
-  posts.forEach((post, i) => {
-    html += `
-      <div class="post">
-        <p><strong>${post.name || "匿名"}</strong> (${new Date(post.date).toLocaleString()})</p>
-        <p>${post.text}</p>
-        ${post.image ? `<img src="${post.image}" alt="投稿画像">` : ""}
-        <button class="like-button" onclick="likePost('${post.id}')">いいね (${post.likes.length})</button>
-        <button onclick="sharePost('${post.id}', '${post.text}')">シェア</button>
-        <div class="comment">
-          ${post.comments.map(c => `<p>💬 ${c}</p>`).join("")}
-          <input type="text" placeholder="コメントする" onkeypress="if(event.key==='Enter'){addComment('${post.id}', this)}">
-        </div>
+async function showHome(filterTag = "") {
+    const sort = document.getElementById("sort")?.value || "new";
+    let html = `
+      <h2>投稿一覧</h2>
+      <div class="filter-bar">
+        <label for="sort">並び替え:</label>
+        <select id="sort" onchange="showHome()">
+          <option value="new">新着順</option>
+          <option value="popular">人気順</option>
+        </select>
       </div>
     `;
-  });
-
-  content.innerHTML = html;
-}
+  
+    const snapshot = await postsCollection.get();
+    let posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+    if (filterTag.trim() !== "") {
+        posts = posts.filter(post => post.tag === filterTag);
+    }      
+  
+    if (sort === "popular") {
+      posts.sort((a, b) => b.likes.length - a.likes.length);
+    } else {
+      posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+  
+    // ← ここから下をshowHome関数内に！
+    posts.forEach((post, i) => {
+      html += `
+        <div class="post">
+          <p><strong>${post.name || "匿名"}</strong> (${new Date(post.date).toLocaleString()})</p>
+          <p>${post.text}</p>
+          <p>タグ: <span class="tag tag-${post.tag}">${post.tag || "なし"}</span></p>
+          ${post.image ? `<img src="${post.image}" alt="投稿画像">` : ""}
+          <button class="like-button" onclick="likePost('${post.id}')">いいね (${post.likes.length})</button>
+          <button onclick="sharePost('${post.id}', '${post.text}')">シェア</button>
+          <div class="comment">
+            ${post.comments.map(c => `<p>💬 ${c}</p>`).join("")}
+            <input type="text" placeholder="コメントする" onkeypress="if(event.key==='Enter'){addComment('${post.id}', this)}">
+          </div>
+        </div>
+      `;
+    });
+  
+    content.innerHTML = html; 
+  }
+  
 
 function showPostForm() {
   content.innerHTML = `
@@ -77,15 +83,26 @@ function countChars() {
   document.getElementById("char-count").innerText = `${text.length}/280文字`;
 }
 
-function submitPost(e) {
-  e.preventDefault();
-  const name = document.getElementById("name").value;
-  const text = document.getElementById("text").value;
-  const imageInput = document.getElementById("imageInput");
-  const reader = new FileReader();
+async function submitPost(e) {
+    e.preventDefault();
+    const name = document.getElementById("name").value;
+    const text = document.getElementById("text").value;
+    const imageInput = document.getElementById("imageInput");
+    const tag = document.getElementById("tag").value;
+  
+    if (imageInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const image = reader.result;
+        await savePost(name, text, image, tag);
+      };
+      reader.readAsDataURL(imageInput.files[0]);
+    } else {
+      await savePost(name, text, null, tag);
+    }
+}
 
-  reader.onload = async function () {
-    const image = imageInput.files[0] ? reader.result : null;
+async function savePost(name, text, image, tag) {
     const post = {
       name,
       text,
@@ -98,14 +115,9 @@ function submitPost(e) {
     };
     await postsCollection.add(post);
     showHome();
-  };
-
-  if (imageInput.files[0]) {
-    reader.readAsDataURL(imageInput.files[0]);
-  } else {
-    reader.onload();
-  }
 }
+  
+  
 
 async function likePost(postId) {
   const userId = getUserId();
@@ -144,6 +156,7 @@ async function showMyPage() {
         <div class="post">
           <p><strong>${p.name || "匿名"}</strong> (${new Date(p.date).toLocaleString()})</p>
           <p>${p.text}</p>
+            <p>タグ: <span class="tag tag-${post.tag}">${post.tag || "なし"}</span></p>
           ${p.image ? `<img src="${p.image}" alt="投稿画像">` : ""}
           <p>❤️ ${p.likes.length} いいね</p>
         </div>
@@ -163,7 +176,7 @@ async function showRanking() {
       <div class="post">
         <p><strong>${p.name || "匿名"}</strong> (${new Date(p.date).toLocaleString()})</p>
         <p>${p.text}</p>
-        <p>タグ: <span class="tag">${post.tag || "なし"}</span></p>
+        <p>タグ: <span class="tag tag-${post.tag}">${post.tag || "なし"}</span></p>
         ${p.image ? `<img src="${p.image}" alt="投稿画像">` : ""}
         <p>❤️ ${p.likes.length} いいね</p>
       </div>
@@ -178,6 +191,39 @@ function sharePost(id, text) {
   const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}&url=${url}`;
   window.open(shareUrl, "_blank");
 }
+
+async function searchByTag() {
+    const inputTag = document.getElementById("tagSearchInput").value.trim();
+    if (!inputTag) return;
+  
+    const snapshot = await postsCollection.where("tag", "==", inputTag).get();
+    const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+    let html = `<h2>「${inputTag}」の投稿</h2><button onclick="showHome()">← 戻る</button>`;
+    posts.forEach(post => {
+      html += `
+        <div class="post">
+          <p><strong>${post.name || "匿名"}</strong> (${new Date(post.date).toLocaleString()})</p>
+          <p>${post.text}</p>
+          <p>タグ: <span class="tag tag-${post.tag}">${post.tag || "なし"}</span></p>
+          ${post.image ? `<img src="${post.image}" alt="投稿画像">` : ""}
+          <p>❤️ ${post.likes.length} いいね</p>
+        </div>
+      `;
+    });
+  
+    if (posts.length === 0) {
+      html += "<p>該当する投稿がありませんでした。</p>";
+    }
+  
+    content.innerHTML = html;
+  }
+
+    function filterByTag() {
+        const selectedTag = document.getElementById("tagSearch").value;
+        showHome(selectedTag);
+    }
+  
 
 // 初期表示
 showHome();
